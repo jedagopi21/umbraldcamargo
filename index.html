@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrusel de Imágenes de Paisajes</title>
+    <!-- Cargamos Tailwind CSS para unos estilos rápidos y modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para asegurar que las imágenes se adapten bien */
+        .carousel-img {
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+        
+        /* Ocultar barra de desplazamiento de forma limpia */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4 sm:p-8 font-sans">
+
+    <div class="relative w-full max-w-5xl mx-auto group bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+        
+        <!-- Pista del carrusel (donde se deslizan las imágenes) -->
+        <div id="carousel-track" class="flex transition-transform duration-500 ease-in-out will-change-transform">
+            <!-- Imágenes en el orden solicitado -->
+            <img src="1.png" alt="Paisaje del lago 1" class="carousel-img w-full flex-shrink-0">
+            <img src="2.png" alt="Paisaje de la montaña 2" class="carousel-img w-full flex-shrink-0">
+            <img src="3.jpeg" alt="Cascada 3" class="carousel-img w-full flex-shrink-0">
+            <img src="4.png" alt="Bosque en otoño 4" class="carousel-img w-full flex-shrink-0">
+            <img src="5.png" alt="Acantilado iluminado 5" class="carousel-img w-full flex-shrink-0">
+        </div>
+
+        <!-- Botón Anterior -->
+        <button id="prev-btn" class="absolute top-1/2 left-4 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 sm:w-8 sm:h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+        </button>
+
+        <!-- Botón Siguiente -->
+        <button id="next-btn" class="absolute top-1/2 right-4 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 sm:w-8 sm:h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+        </button>
+
+        <!-- Indicadores (Puntos) -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 sm:space-x-3 bg-black/30 px-4 py-2 rounded-full backdrop-blur-md">
+            <button class="dot w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none bg-white scale-125" data-index="0" aria-label="Ir a la imagen 1"></button>
+            <button class="dot w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none bg-white/40 hover:bg-white/70" data-index="1" aria-label="Ir a la imagen 2"></button>
+            <button class="dot w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none bg-white/40 hover:bg-white/70" data-index="2" aria-label="Ir a la imagen 3"></button>
+            <button class="dot w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none bg-white/40 hover:bg-white/70" data-index="3" aria-label="Ir a la imagen 4"></button>
+            <button class="dot w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none bg-white/40 hover:bg-white/70" data-index="4" aria-label="Ir a la imagen 5"></button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const track = document.getElementById('carousel-track');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const dots = document.querySelectorAll('.dot');
+            
+            const totalSlides = dots.length;
+            let currentIndex = 0;
+
+            // Función principal para actualizar la vista del carrusel
+            function updateCarousel(index) {
+                // Prevenir desbordamientos
+                if (index < 0) index = totalSlides - 1;
+                if (index >= totalSlides) index = 0;
+                
+                currentIndex = index;
+
+                // Mover la pista (cada imagen ocupa un 100% del contenedor)
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+                // Actualizar estilo de los puntos
+                dots.forEach((dot, i) => {
+                    if (i === currentIndex) {
+                        dot.classList.replace('bg-white/40', 'bg-white');
+                        dot.classList.remove('hover:bg-white/70');
+                        dot.classList.add('scale-125');
+                    } else {
+                        dot.classList.replace('bg-white', 'bg-white/40');
+                        dot.classList.add('hover:bg-white/70');
+                        dot.classList.remove('scale-125');
+                    }
+                });
+            }
+
+            // Eventos para los botones Anterior / Siguiente
+            prevBtn.addEventListener('click', () => {
+                updateCarousel(currentIndex - 1);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                updateCarousel(currentIndex + 1);
+            });
+
+            // Eventos para los puntos indicadores
+            dots.forEach(dot => {
+                dot.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    updateCarousel(index);
+                });
+            });
+
+            // Añadir soporte para deslizar (swipe) en dispositivos móviles
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            track.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            track.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+
+            function handleSwipe() {
+                const swipeThreshold = 50; // Mínimo movimiento para considerar un "swipe"
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    updateCarousel(currentIndex + 1); // Deslizó a la izquierda (Siguiente)
+                }
+                if (touchEndX > touchStartX + swipeThreshold) {
+                    updateCarousel(currentIndex - 1); // Deslizó a la derecha (Anterior)
+                }
+            }
+        });
+    </script>
+</body>
+</html>
